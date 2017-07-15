@@ -1,25 +1,18 @@
 #!/usr/bin/env python3
-
-
 from multiprocessing import Pool
 import multiprocessing # cpu count
 import subprocess 
 import os
 
-
-
-FILES = []
-
 CC="clang"
+
+
+FILES = [] # collect files 
 
 for root, directories, filenames in os.walk(os.getcwd()):
     for filename in filenames:
         if (filename.endswith(".c")):
             FILES.append(os.path.join(root,filename))
-
-#print(FILES);
-
-FAILURES=[]
 
 def test(cfile):
     CFLAG_LIST=[ # cflag combinations to try
@@ -36,12 +29,12 @@ def test(cfile):
         flagstr=""
         for flag in CFLAGS:
             flagstr += flag
-        OUTFILE = cfile+flagstr
+        EXECUTABLE = cfile+flagstr
 
         cmd = [ CC,
                 cfile,
                 "-o",
-                OUTFILE,
+                EXECUTABLE,
         ]
 
         for flag in CFLAGS: #hack
@@ -49,21 +42,18 @@ def test(cfile):
         print(cmd)
         subprocess.call(cmd)
 
-        executable_process = subprocess.Popen(OUTFILE, shell=True,
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
+        executable_process = subprocess.Popen(EXECUTABLE, shell=True,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = executable_process.communicate()
         if (len(out) + len(err)) > 0: # check if we have any output
-            l = ["\t\tERROR: "] # hack
-            l.append(cmd)
-            FAILURES.append(l)
-            print(l)
+            badcmd = "ERROR: "
+            for i in cmd:
+                badcmd += i + " "
+            badcmd += "./" + EXECUTABLE
+            print(badcmd)
+            print(out)
+            print(err)
 
-try:
-    p = Pool(multiprocessing.cpu_count())
-    p.map(test, set(FILES))
-    print("Failures:")
-    print(FAILURES)
-except KeyboardInterrupt:
-    print("Failures:")
-    print(FAILURES)
+p = Pool(multiprocessing.cpu_count())
+p.map(test, set(FILES))
+
