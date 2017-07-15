@@ -10,13 +10,13 @@ use Time::HiRes;
 
 my $start_time = Time::HiRes::time;
 
-my $compiler = "gcc-4.4";   #target compiler
+my $compiler = "clang";   #target compiler
 
 my $path = File::Spec->rel2abs();
 
 for(my $i = 1; $i < 6; $i++ ) {
 	while (my $file = glob("$path/testsuite/EXP_$i/*.c")) {
-		system "$compiler $file -O3";
+		system "$compiler $file -O3 -march=native";
 		system "./a.out";
 		print $file, "\n";
 	}
