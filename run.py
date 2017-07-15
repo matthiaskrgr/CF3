@@ -59,12 +59,11 @@ def test(cfile):
             FAILURES.append(l)
             print(l)
 
-
-
-p = Pool(multiprocessing.cpu_count())
-
-p.map(test, set(FILES))
-
-
-print("Failures:")
-print(FAILURES)
+try:
+    p = Pool(multiprocessing.cpu_count())
+    p.map(test, set(FILES))
+    print("Failures:")
+    print(FAILURES)
+except KeyboardInterrupt:
+    print("Failures:")
+    print(FAILURES)
