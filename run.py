@@ -20,27 +20,42 @@ for root, directories, filenames in os.walk(os.getcwd()):
         if (filename.endswith(".c")):
             FILES.append(os.path.join(root,filename))
 
-print(FILES);
+#print(FILES);
 
 
 def test(cfile):
-    CFLAGS=["-O3"]
-    FLAGS = " ".join(CFLAGS)
-    OUTFILE = cfile+("".join(CFLAGS))
-    cmd = [ CC,
-            cfile,
-            "-o",
-            OUTFILE,
+    CFLAG_LIST=[
+        ["-O0"],
+        ["-O1"],
+        ["-O2"],
+        ["-O3"],
+        ["-Os"],
+        ["-Oz"],
+        ["-O3", "-march=native"],
+        ["-Oz", "-march=native"],
     ]
-    for flag in FLAGS.split(): # hack
-        cmd.append(flag)
+    for CFLAGS in CFLAG_LIST:
+        flagstr=""
+        for flag in CFLAGS:
+            flagstr += flag
+        OUTFILE = cfile+flagstr
 
-    subprocess.call(cmd)
-    subprocess.call(OUTFILE)
-    print(cmd);
+        cmd = [ CC,
+                cfile,
+                "-o",
+                OUTFILE,
+        ]
+
+        for flag in CFLAGS: #hack
+            cmd.append(flag)
+        print(cmd)
+        subprocess.call(cmd)
+        subprocess.call(OUTFILE)
+
 
 
 p = Pool(multiprocessing.cpu_count())
+
 p.map(test, set(FILES))
 
 
