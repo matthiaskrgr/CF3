@@ -3,11 +3,8 @@
 
 from multiprocessing import Pool
 import multiprocessing # cpu count
-from PIL import Image as PIL # compare images
-import subprocess # launch advdef, optipng, imagemagick
-import os # os rename, niceness
-import shutil # copy files
-import sys # sys.exit
+import subprocess 
+import os
 
 
 
