@@ -22,9 +22,10 @@ for root, directories, filenames in os.walk(os.getcwd()):
 
 #print(FILES);
 
+FAILURES=[]
 
 def test(cfile):
-    CFLAG_LIST=[
+    CFLAG_LIST=[ # cflag combinations to try
         ["-O0"],
         ["-O1"],
         ["-O2"],
@@ -50,7 +51,16 @@ def test(cfile):
             cmd.append(flag)
         print(cmd)
         subprocess.call(cmd)
-        subprocess.call(OUTFILE)
+
+        executable_process = subprocess.Popen(OUTFILE, shell=True,
+                           stdout=subprocess.PIPE, 
+                           stderr=subprocess.PIPE)
+        out, err = executable_process.communicate()
+        if (len(out) + len(err)) > 0: # check if we have any output
+            l = ["\t\tERROR: "] # hack
+            l.append(cmd)
+            FAILURES.append(l)
+            print(l)
 
 
 
@@ -59,3 +69,5 @@ p = Pool(multiprocessing.cpu_count())
 p.map(test, set(FILES))
 
 
+print("Failures:")
+print(FAILURES)
